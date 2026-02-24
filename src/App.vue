@@ -1,47 +1,56 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+// the scripts go in here
+  import "./assets/css/bootstrap.min.css"
+  import { ref,reactive } from "vue"
+
+  const darkMode = ref(true);
+  const username = ref("Kitsa")
+
+  setTimeout(()=>{
+    darkMode.value = !darkMode.value;
+    console.log(darkMode.value)
+
+    credentials.username = "Ajabu"
+    credentials.password = "password"
+
+  },5000)
+
+  const credentials = reactive({
+    username:"kitsa",
+    password:"12345"
+  })
+
+  console.log(credentials.username,credentials.password)
+
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+<!-- html goes here--> 
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+<div>
+
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>{{ credentials.username }}</h1>
     </div>
-  </header>
+  </div>
+</div>
 
-  <main>
-    <TheWelcome />
-  </main>
+<button class="btn btn-primary">
+  {{ darkMode }}
+</button>
+
+<div>
+  {{ credentials.username }}
+  {{ credentials.password }}
+</div>
+
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
+/* the styles go in here */
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
 </style>
