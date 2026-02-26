@@ -7,7 +7,21 @@
         password:"password"
     })
 
-    const volume =  ref(0)
+    const usernames = reactive(["kitsa","hana","samson"])
+
+    const error =ref("")
+
+    function login(event,userRole){
+        console.log(credentials.username)
+        console.log(credentials.password)
+    }
+
+    function updateUsername(event){
+        credentials.username = event.target.value
+        if(!usernames.includes(credentials.username)){
+            error.value = "Username not found"
+        }
+    }
 
 </script>
 
@@ -18,10 +32,15 @@
         <h1>Welcome Back</h1>
         <p>Please enter your details to login</p>
 
-        <form id="login-form">
+        <form id="login-form" @submit.prevent="event=>login(event,'sales-agent')" >
             <div class="form-group">
                 <label for="username">Username</label>
-                <input v-model="credentials.username" type="text" id="username" name="username" placeholder="Enter your username" required>
+                <input 
+                 :value="credentials.username"
+                 @blur="updateUsername"
+                 @focus="error=''"
+                type="text" id="username" name="username" placeholder="Enter your username" required>
+                <div v-if="error" style="color:red">{{ error }}</div>
             </div>
 
             <div class="form-group">
@@ -29,17 +48,10 @@
                 <input v-model="credentials.password" type="password" id="password" name="password" placeholder="••••••••" required>
             </div>
 
-                <input type="range" max="100"  min="0" v-model="volume" >
-
-                <span>The current volume is {{ volume }}</span>
-
             <button type="submit" id="login-btn" class="btn-login">Login to System</button>
         </form>
 
-        <div>
-            <div>{{ credentials.username }}</div>
-            <div>{{ credentials.password }}</div>
-        </div>
+        {{ credentials.username }}
 
         <div class="footer-links">
             <a href="#">Forgot Password?</a>

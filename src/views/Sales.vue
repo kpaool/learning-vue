@@ -1,7 +1,7 @@
 <script setup>
 
     import { reactive, ref } from "vue"
-
+    import SalesTableRow from "../components/SalesTableRow.vue"
     const sales = reactive([
         {
             id:3234,
@@ -34,7 +34,14 @@
         {userRole:"manager",actions:["update:sale","delete:sale"]}    
     ])
 
-    const userRole = ref("sales-agent")
+    const props = defineProps({
+        userRole:{
+            type: String,
+            default:'guest'
+        },
+    })
+
+    const userRole = ref(props.userRole)
 
     // setTimeout(()=>{
     //     userRole.value = "manager"
@@ -61,16 +68,16 @@
             <h1>KGL Groceries Dashboard</h1>
             <p style="color: #666;">Sales Overview - January 23, 2026</p>
         </header>
-        <!-- <div v-if="permissions.find(p=>p.userRole===userRole).actions.includes('create:sale')">
+        <div v-if="permissions.find(p=>p.userRole===userRole).actions.includes('create:sale')">
             <a href="addsale.html" class="addsale-btn">Add Sale</a>
         </div>
         <div v-else>
             You need to be a sales agent to add a sale
-        </div> -->
-
-        <div>
-            <a href="addsale.html" class="addsale-btn user-indicator-yes" :class="{'user-indicator-no':userRole==='manager'}">Add Sale</a>
         </div>
+
+        <!-- <div>
+            <a href="addsale.html" class="addsale-btn user-indicator-yes" :class="{'user-indicator-no':userRole==='manager'}">Add Sale</a>
+        </div> -->
 
         <div class="stats-grid">
             <div class="card">
@@ -99,14 +106,11 @@
                         <th>Balance</th>
                         <th>Status</th>
                     </tr>
-                     <tr v-for="(sale,index) in sales" :key="sale.id">
-                        <td>{{index + 1}}</td>
-                        <td>{{sale.customer}}</td>
-                        <td>{{sale.items}}</td>
-                        <td>{{sale.dueDate}}</td>
-                        <td><strong>{{ sale.balance }}</strong></td>
-                        <td><span class="status-badge partial">{{sale.status}}</span></td>
-                    </tr>
+                    <SalesTableRow 
+                    v-for="(sale,index) in sales" 
+                    :key="sale.id" 
+                    :sale="sale" 
+                    :index="index" />
                     <tr>
                         <td colspan="4">Balances</td>
                         <td colspan="2"><strong>{{ sales.reduce((total,sale) => total + sale.balance,0).toLocaleString() }}</strong></td>
@@ -127,6 +131,14 @@
 
     .user-indicator-yes{
         background-color: green;
+    }
+
+    .green{
+        background-color: green;
+    }
+
+    .red{
+        background-color: red;
     }
 
     .user-indicator-no{
