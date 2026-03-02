@@ -3,6 +3,9 @@
     import { reactive, ref, watchEffect } from 'vue';
     import { useRouter } from 'vue-router';
 
+    import axios from "@/utils/axios"
+import { AxiosError } from 'axios';
+
     const router = useRouter()
 
     const credentials = reactive({
@@ -37,29 +40,25 @@
 
         error.general = ""
 
-        fetch('https://dummyjson.com/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            
-            username: credentials.username,
-            password: credentials.password,
-            expiresInMins: 30, // optional, defaults to 60
-        }),
+        axios.post("/auth/login",{
+            username:credentials.username,
+            password:credentials.password,
+            expiresInMins:30,
         })
-        .then(res => res.json())
         .then((data)=>{
-            console.log(data)
+            console.log(data.data.message)
 
-            if(data.message=="Invalid credentials"){
+            if(data.data.message &&data.data.message=="Invalid credentials"){
                 error.general = "Invalid credentials"
             }else{
                 router.push("/")
             }
 
-        });
-
-
+        })
+        .catch((err)=>{
+            console.log(err.response.data.message)
+            error.general = err.response.data.message
+        })
     }
 
     function updateUsername(event){
