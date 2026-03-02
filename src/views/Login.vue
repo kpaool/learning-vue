@@ -1,6 +1,9 @@
 <script setup>
 
-    import { reactive, ref } from 'vue';
+    import { reactive, ref, watchEffect } from 'vue';
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter()
 
     const credentials = reactive({
         username:"abraham",
@@ -9,17 +12,60 @@
 
     const usernames = reactive(["kitsa","hana","samson"])
 
-    const error =ref("")
+    const error =reactive({
+        username:"",
+        password:"",
+        general:""
+    })
+
+
+    watchEffect(()=>{
+        if(credentials.password.length < 6){
+            error.password = "Password must be at least 6 characters long"
+        }else{
+            error.password = ""
+        }
+
+    })
 
     function login(event,userRole){
-        console.log(credentials.username)
-        console.log(credentials.password)
+
+        if(!credentials.username || !credentials.password){
+            error.general = "Please enter username and password"
+            return
+        }
+
+        error.general = ""
+
+        fetch('https://dummyjson.com/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            
+            username: credentials.username,
+            password: credentials.password,
+            expiresInMins: 30, // optional, defaults to 60
+        }),
+        })
+        .then(res => res.json())
+        .then((data)=>{
+            console.log(data)
+
+            if(data.message=="Invalid credentials"){
+                error.general = "Invalid credentials"
+            }else{
+                router.push("/")
+            }
+
+        });
+
+
     }
 
     function updateUsername(event){
         credentials.username = event.target.value
         if(!usernames.includes(credentials.username)){
-            error.value = "Username not found"
+            error.username = "Username not found"
         }
     }
 
@@ -38,20 +84,22 @@
                 <input 
                  :value="credentials.username"
                  @blur="updateUsername"
-                 @focus="error=''"
+                 @focus="error.username=''"
                 type="text" id="username" name="username" placeholder="Enter your username" required>
-                <div v-if="error" style="color:red">{{ error }}</div>
+                <div v-if="error.username" style="color:red">{{ error.username }}</div>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input v-model="credentials.password" type="password" id="password" name="password" placeholder="••••••••" required>
+                <input v-model="credentials.password" type="password" id="password" name="password" placeholder="••••••••">
+                <div v-if="error.password" style="color:red">{{ error.password }}</div>
             </div>
 
             <button type="submit" id="login-btn" class="btn-login">Login to System</button>
+
+            <div v-if="error.general" style="color:red">{{ error.general }}</div>
         </form>
 
-        {{ credentials.username }}
 
         <div class="footer-links">
             <a href="#">Forgot Password?</a>

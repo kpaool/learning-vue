@@ -34,7 +34,10 @@ import { reactive } from 'vue';
         <td><span class="status-badge partial">{{sale.status}}</span></td>
         <td>
             <button @click="removeSale(sale.id)">Delete</button>
-            <button class="primary" @click="editSale(sale.id)">Edit</button>
+            <!-- <button class="primary" @click="editSale(sale.id)">Edit</button> -->
+
+            <RouterLink :to="`sale/${sale.id}`" >Edit</RouterLink>
+            
         </td>
     </tr>
 </template>

@@ -15,11 +15,8 @@ import { ref } from "vue"
 </script>
 
 <template>
-<!-- html goes here--> 
-
-<!-- <LoginComponent/> -->
-
-<SalesComponent :userRole="userRole" />
+  
+<RouterView/>
 
 </template>
 
