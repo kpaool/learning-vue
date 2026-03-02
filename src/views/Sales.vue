@@ -1,38 +1,74 @@
 <script setup>
 
-    import { reactive, ref } from "vue"
+    import { reactive, ref, onMounted, computed, compile, watch, watchEffect } from "vue"
     import SalesTableRow from "../components/SalesTableRow.vue"
-    const sales = reactive([
-        {
-            id:3234,
-            customer:"Aksanti",
-            items:"Maize",
-            dueDate:new Date().toISOString().split("T")[0],
-            balance:0,
-            status:"Partial"
-        },
-        {
-            id:23455,
-            customer:"Baharawe",
-            items:"Milk",
-            dueDate:new Date("2026-01-17").toISOString().split("T")[0],
-            balance:5000,
-            status:"Partial"
-        },
-        {
-            id:234325,
-            customer:"Baraka",
-            items:"Cassava",
-            dueDate:new Date().toISOString().split("T")[0],
-            balance:1000,
-            status:"Paid"
-        }
-    ])
+    import StatsCard from "@/components/ui/StatsCard.vue"
+    const sales = ref([])
+    const isLoading = ref(true)
+
 
     const permissions = reactive([
         {userRole:"sales-agent",actions:["create:sale","update:sale","delete:sale"]},
         {userRole:"manager",actions:["update:sale","delete:sale"]}    
     ])
+
+    const totalSales = computed(()=>{
+        return sales.value.reduce((total,sale)=>total+sale.balance,0)
+    })
+
+    const customerToCall = computed(()=>{
+        sales.value.sort((a,b)=>b.balance-a.balance)
+        return sales.value[0]?.customer ?? "No customer to call"
+    })
+
+    onMounted(()=>{
+        let _data = [
+             {
+                id:3234,
+                    customer:"Aksanti",
+                    items:"Maize",
+                    dueDate:new Date().toISOString().split("T")[0],
+                    balance:0,
+                    status:"Partial"
+                },
+                {
+                    id:23455,
+                    customer:"Baharawe",
+                    items:"Milk",
+                    dueDate:new Date("2026-01-17").toISOString().split("T")[0],
+                    balance:5000,
+                    status:"Partial"
+                },
+                {
+                    id:234325,
+                    customer:"Baraka",
+                    items:"Cassava",
+                    dueDate:new Date().toISOString().split("T")[0],
+                    balance:1000,
+                    status:"Paid"
+            }
+        ]
+        
+        fetch('https://fakestoreapi.com/products')
+        .then(response => response.json())
+        .then(data => {
+            // console.log(data)
+            sales.value = _data
+            isLoading.value=false
+        });
+        
+    })
+
+    watch(customerToCall,(newValue,oldValue)=>{
+        //implement your logic for watchng
+        console.log(newValue,oldValue)
+        // alert(`Customer to call has changed from ${oldValue} to ${newValue}`)
+    })
+
+    watchEffect(()=>{
+        //implement your logic for watchng
+        console.log(customerToCall.value,"is with watch effect")
+    })
 
     const props = defineProps({
         userRole:{
@@ -47,9 +83,27 @@
     //     userRole.value = "manager"
     // },5000)
 
+    const deleteSale = (data)=>{
+        console.log(data)
+        sales.value = sales.value.filter(sale=>sale.id !== data.id)
+        alert(`Sales id ${data.id} has been deleted`)
+    }
+
+    const updateSale = (data)=>{
+        console.log(data)
+        alert(`Sales id ${data.id} has been updated`)
+    }
+
 </script>
 
 <template>
+
+    <div class="loading" v-if="isLoading">
+        <div>
+            Loading data from the server...
+        </div>
+    </div>
+
     <nav class="top-nav">
         <div class="user-info">
             <span>Logged in as: <strong id="fullName">Alex Mwangi</strong></span>
@@ -80,19 +134,15 @@
         </div> -->
 
         <div class="stats-grid">
-            <div class="card">
-                <h3>Total Cash Sales</h3>
-                <span class="amount" id="totalSales">UGX 4,500,000</span>
-            </div>
-            <div class="card credit">
-                <h3>Total Credit Sales</h3>
-                <span class="amount" id="totalCreditSales">UGX 820,000</span>
-            </div>
-            <div class="card" style="border-left-color: var(--secondary);">
-                <h3>Pending Collections</h3>
-                <span class="amount" id="pendingSales">12 Orders</span>
-            </div>
+            <StatsCard title="Total Cash Sales" description="UGX 4,500,000" />
+            <StatsCard title="Total Credit Sales" description="UGX 820,000" />
+            <StatsCard title="Customer to Call" :description="customerToCall" />
         </div>
+
+
+        <!-- <div>
+            <p>Customer to call: {{ customerToCall }}</p>
+        </div> -->
 
         <div class="table-container">
             <h2>Recent Credit Transactions</h2>
@@ -105,15 +155,19 @@
                         <th>Due Date</th>
                         <th>Balance</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                     <SalesTableRow 
                     v-for="(sale,index) in sales" 
                     :key="sale.id" 
                     :sale="sale" 
-                    :index="index" />
+                    :index="index"
+                    @delete-sale="deleteSale"
+                    @update-sale="updateSale"
+                     />
                     <tr>
                         <td colspan="4">Balances</td>
-                        <td colspan="2"><strong>{{ sales.reduce((total,sale) => total + sale.balance,0).toLocaleString() }}</strong></td>
+                        <td colspan="2"><strong>{{ totalSales }}</strong></td>
                     </tr>
                 </thead>
                 <tbody id="data-table">
@@ -128,6 +182,22 @@
     /* .addsale-btn{
         background-color:red
     } */
+
+    .loading{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+    }
 
     .user-indicator-yes{
         background-color: green;

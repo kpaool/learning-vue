@@ -9,7 +9,7 @@ import { ref } from "vue"
 /**
  * After some code to determine the user role, we can set the user role
  */
-  const userRole = ref("manager")
+  const userRole = ref("sales-agent")
 
 
 </script>
