@@ -4,13 +4,14 @@
     import { useRouter } from 'vue-router';
 
     import axios from "@/utils/axios"
-import { AxiosError } from 'axios';
+    import { useUserStore } from '@/stores/userStore'
 
     const router = useRouter()
+    const user = useUserStore()
 
     const credentials = reactive({
-        username:"abraham",
-        password:"password"
+        username:"emilys",
+        password:"emilyspass"
     })
 
     const usernames = reactive(["kitsa","hana","samson"])
@@ -46,11 +47,13 @@ import { AxiosError } from 'axios';
             expiresInMins:30,
         })
         .then((data)=>{
-            console.log(data.data.message)
+            
 
             if(data.data.message &&data.data.message=="Invalid credentials"){
                 error.general = "Invalid credentials"
             }else{
+                const _userData= data.data
+                user.setUser(_userData.username,_userData.gender,_userData.accessToken)
                 router.push("/")
             }
 

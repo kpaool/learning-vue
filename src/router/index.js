@@ -5,6 +5,7 @@ import SalesComponent from "../views/Sales.vue"
 import SaleComponent from "../views/Sale.vue"
 import ProcurementComponent from "../views/Procurement.vue"
 import DashboardLayout from "../layout/Dashboard.vue"
+import ProductsComponent from "../views/Products.vue"
 
 const router = createRouter({
     history: createWebHistory(),
@@ -33,6 +34,11 @@ const router = createRouter({
                     path:"/procurement",
                     name:"procurement",
                     component:ProcurementComponent,
+                },
+                {
+                    path:"/products",
+                    name:"products",
+                    component:ProductsComponent,
                 }
             ]
         },
